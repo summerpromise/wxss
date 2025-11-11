@@ -1,0 +1,251 @@
+/* pages/profile/profile.wxss */
+
+page {
+  height: 100%;
+  background-color: var(--background);
+}
+
+.profile-container {
+  min-height: 100vh;
+  background-color: var(--background);
+  padding-bottom: 120rpx;
+}
+
+.profile-content {
+  padding: 48rpx 32rpx;
+  max-width: 750rpx;
+  margin: 0 auto;
+}
+
+/* 页面标题 */
+.profile-header {
+  margin-bottom: 64rpx;
+}
+
+.page-title {
+  font-size: 56rpx;
+  font-weight: bold;
+  color: var(--foreground);
+}
+
+/* 主题切换卡片 */
+.theme-card {
+  background-color: var(--card);
+  border-radius: 16rpx;
+  padding: 48rpx;
+  margin-bottom: 48rpx;
+  border: 1rpx solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.theme-info {
+  flex: 1;
+}
+
+.theme-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.theme-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.theme-status {
+  font-size: 28rpx;
+  color: var(--muted-foreground);
+}
+
+/* 切换开关 */
+.theme-toggle {
+  margin-left: 32rpx;
+}
+
+.toggle-track {
+  position: relative;
+  width: 112rpx;
+  height: 64rpx;
+  background-color: var(--muted);
+  border-radius: 64rpx;
+  transition: background-color 0.3s;
+}
+
+.toggle-track.active {
+  background-color: var(--primary);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 8rpx;
+  left: 8rpx;
+  width: 48rpx;
+  height: 48rpx;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-thumb.active {
+  transform: translateX(48rpx);
+}
+
+/* 主题预览卡片 */
+.preview-card {
+  background-color: var(--card);
+  border-radius: 16rpx;
+  padding: 48rpx;
+  border: 1rpx solid var(--border);
+  margin-bottom: 48rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.preview-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--foreground);
+  display: block;
+  margin-bottom: 32rpx;
+}
+
+.preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.preview-icon {
+  font-size: 40rpx;
+}
+
+.preview-text {
+  font-size: 28rpx;
+  color: var(--muted-foreground);
+}
+
+.preview-tip {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  background-color: var(--muted);
+  border-radius: 12rpx;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: var(--muted-foreground);
+}
+
+/* 用户信息卡片 */
+.user-card {
+  background-color: var(--card);
+  border-radius: 16rpx;
+  padding: 48rpx;
+  border: 1rpx solid var(--border);
+  margin-bottom: 48rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  gap: 32rpx;
+}
+
+.user-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 40rpx rgba(0, 212, 255, 0.4);
+}
+
+.avatar-text {
+  font-size: 48rpx;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.user-desc {
+  font-size: 28rpx;
+  color: var(--muted-foreground);
+}
+
+/* 功能列表 */
+.function-list {
+  background-color: var(--card);
+  border-radius: 16rpx;
+  border: 1rpx solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.function-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx 48rpx;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.function-item:last-child {
+  border-bottom: none;
+}
+
+.function-item:active {
+  background-color: var(--muted);
+}
+
+.function-icon {
+  font-size: 40rpx;
+  margin-right: 24rpx;
+}
+
+.function-text {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.function-arrow {
+  font-size: 48rpx;
+  color: var(--muted-foreground);
+  font-weight: 300;
+}
+
+/* 深色模式适配 */
+.dark .user-avatar {
+  background: linear-gradient(135deg, #00d4ff, #00ff88);
+}
+
+.dark .theme-card,
+.dark .preview-card,
+.dark .user-card,
+.dark .function-list {
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
+}
+

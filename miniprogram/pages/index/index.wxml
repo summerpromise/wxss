@@ -1,0 +1,345 @@
+<!--pages/index/index.wxml-->
+<view class="container {{isDark ? 'dark' : ''}}">
+  <!-- 地图容器 -->
+  <view class="map-container">
+    <map
+      id="mainMap"
+      class="map"
+      latitude="{{latitude}}"
+      longitude="{{longitude}}"
+      scale="14"
+      markers="{{markers}}"
+      show-location="{{false}}"
+      bindregionchange="onMapRegionChange"
+      bindtap="onMapTap"
+    >
+    </map>
+
+    <!-- 地图中心锚点（固定在屏幕中心） -->
+    <view class="map-anchor">
+      <view class="anchor-pin">
+        <view class="anchor-dot"></view>
+        <view class="anchor-stick"></view>
+      </view>
+    </view>
+
+    <!-- 地图控制按钮 -->
+    <view class="map-controls">
+      <view class="control-btn" bindtap="relocate">
+        <text class="icon">⊙</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主页内容 -->
+  <view wx:if="{{currentState === 'home'}}" class="draggable-panel {{isDragging ? '' : 'panel-transition'}}" style="height: {{panelHeight}}vh;">
+    <view class="panel-content">
+      <!-- 拖动条 -->
+      <view 
+        class="drag-handle" 
+        bindtouchstart="onDragStart"
+        catchtouchmove="onDragMove"
+        bindtouchend="onDragEnd"
+        bindtouchcancel="onDragEnd"
+      >
+        <view class="drag-bar"></view>
+      </view>
+
+      <view class="panel-body">
+        <!-- 位置信息 -->
+        <view class="location-section">
+          <view class="location-item">
+            <view class="location-dot-start"></view>
+            <view class="location-info">
+              <text class="location-label">上车地点</text>
+              <text class="location-text">{{startLocation}}</text>
+            </view>
+          </view>
+
+          <!-- 目的地输入 -->
+          <view class="destination-input-wrapper">
+            <view class="destination-input">
+              <text class="input-icon">📍</text>
+              <input
+                class="input-field"
+                placeholder="你想去哪儿？"
+                value="{{destination}}"
+                bindinput="onDestinationInput"
+              />
+            </view>
+          </view>
+
+          <!-- 快速选项 -->
+          <view class="quick-options">
+            <view class="quick-btn">
+              <text class="quick-icon">🕐</text>
+              <text class="quick-text">预约</text>
+            </view>
+            <view class="quick-btn">
+              <text class="quick-icon">👥</text>
+              <text class="quick-text">帮人叫车</text>
+            </view>
+            <view class="quick-btn">
+              <text class="quick-icon">✈️</text>
+              <text class="quick-text">接送机</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 促销条 -->
+        <view class="promo-bar">
+          <view class="promo-content">
+            <text class="promo-title">新用户专属</text>
+            <text class="promo-subtitle">首单享受霓虹优惠</text>
+          </view>
+          <text class="promo-arrow">→</text>
+        </view>
+
+        <!-- 服务网格 -->
+        <view class="services-section">
+          <text class="section-title">出行服务</text>
+          <view class="services-grid">
+            <view
+              wx:for="{{mainServices}}"
+              wx:key="id"
+              class="service-item"
+              data-id="{{item.id}}"
+              bindtap="onServiceSelect"
+            >
+              <view class="service-icon">
+                <text class="service-emoji">{{item.icon}}</text>
+              </view>
+              <text class="service-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 福利提示 -->
+        <view class="welfare-tip">
+          <text class="welfare-title">新用户专属福利</text>
+          <text class="welfare-subtitle">首单优惠 • 倒计时 01:39:05</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 地址输入页 -->
+  <view wx:if="{{currentState === 'address'}}" class="draggable-panel {{isDragging ? '' : 'panel-transition'}}" style="height: 75vh;">
+    <view class="panel-content">
+      <view 
+        class="drag-handle"
+        bindtouchstart="onDragStart"
+        catchtouchmove="onDragMove"
+        bindtouchend="onDragEnd"
+        bindtouchcancel="onDragEnd"
+      >
+        <view class="drag-bar"></view>
+      </view>
+
+      <view class="panel-body">
+        <!-- 返回按钮 -->
+        <view class="back-btn" bindtap="backToHome">
+          <text class="back-icon">←</text>
+          <text class="back-text">返回</text>
+        </view>
+
+        <!-- 地址输入 -->
+        <view class="address-input-section">
+          <text class="section-title-small">选择出行地点</text>
+
+          <!-- 出发地 -->
+          <view class="address-input-item">
+            <text class="address-label">上车地址</text>
+            <view class="address-input-box start-address-readonly">
+              <text class="address-icon">📍</text>
+              <input
+                class="address-input-field"
+                placeholder="当前位置"
+                value="{{startAddress}}"
+                disabled="{{true}}"
+                bindinput="onStartAddressInput"
+              />
+              <text class="readonly-hint">（当前位置）</text>
+            </view>
+          </view>
+
+          <!-- 目的地 -->
+          <view class="address-input-item destination-item">
+            <text class="address-label">目的地地址</text>
+            <view class="address-input-box destination-box">
+              <text class="address-icon accent-icon">📍</text>
+              <input
+                class="address-input-field"
+                placeholder="输入目的地"
+                value="{{endAddress}}"
+                bindinput="onEndAddressInput"
+              />
+            </view>
+            
+            <!-- 关键词提示列表 -->
+            <view class="suggestions-list" wx:if="{{showSuggestions && suggestions.length > 0}}">
+              <scroll-view scroll-y class="suggestions-scroll">
+                <view 
+                  class="suggestion-item" 
+                  wx:for="{{suggestions}}" 
+                  wx:key="id"
+                  data-index="{{index}}"
+                  bindtap="selectSuggestion"
+                >
+                  <view class="suggestion-title">{{item.title}}</view>
+                  <view class="suggestion-address">{{item.address}}</view>
+                </view>
+              </scroll-view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 计算结果 -->
+        <view wx:if="{{distance !== null}}" class="calculation-result">
+          <view class="result-grid">
+            <view class="result-item">
+              <text class="result-value primary-value">{{price}}</text>
+              <text class="result-label">预估价格 ¥</text>
+            </view>
+            <view class="result-item bordered">
+              <text class="result-value accent-value">{{time}}</text>
+              <text class="result-label">预估时间 分</text>
+            </view>
+            <view class="result-item">
+              <text class="result-value">{{distance}}</text>
+              <text class="result-label">距离 km</text>
+            </view>
+          </view>
+
+          <view class="result-divider"></view>
+
+          <view class="service-info-row">
+            <text class="service-name-text">{{serviceName}}</text>
+            <view class="service-badge">
+              <text class="service-badge-text">出行服务</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 确认按钮 -->
+        <view class="confirm-btn {{distance === null ? 'disabled' : ''}}" bindtap="confirmAddress">
+          <text class="confirm-btn-text">确认行程信息</text>
+        </view>
+
+        <!-- 提示 -->
+        <view wx:if="{{distance === null}}" class="tip-text">
+          <text>请输入上车地址和目的地来获取价格估算</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 订单页 -->
+  <view wx:if="{{currentState === 'order' && orderData}}" class="draggable-panel {{isDragging ? '' : 'panel-transition'}}" style="height: 80vh;">
+    <view class="panel-content">
+      <view 
+        class="drag-handle"
+        bindtouchstart="onDragStart"
+        catchtouchmove="onDragMove"
+        bindtouchend="onDragEnd"
+        bindtouchcancel="onDragEnd"
+      >
+        <view class="drag-bar"></view>
+      </view>
+
+      <view class="panel-body">
+        <!-- 返回按钮 -->
+        <view class="back-btn" bindtap="backToAddress">
+          <text class="back-icon">←</text>
+          <text class="back-text">修改行程</text>
+        </view>
+
+        <!-- 出发地和目的地 -->
+        <view class="route-display">
+          <view class="route-point">
+            <view class="route-dot start-dot"></view>
+            <view class="route-info">
+              <text class="route-label">上车地点</text>
+              <text class="route-text">{{orderData.startAddress}}</text>
+            </view>
+          </view>
+
+          <view class="route-line"></view>
+
+          <view class="route-point">
+            <view class="route-dot end-dot"></view>
+            <view class="route-info">
+              <text class="route-label">目的地</text>
+              <text class="route-text">{{orderData.endAddress}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 价格时间距离信息 -->
+        <view class="order-info-grid">
+          <view class="order-info-item">
+            <text class="order-info-value primary-value">¥{{orderData.price}}</text>
+            <text class="order-info-label">预估价格</text>
+          </view>
+          <view class="order-info-item bordered">
+            <text class="order-info-value accent-value">{{orderData.time}}</text>
+            <text class="order-info-label">预估时间</text>
+          </view>
+          <view class="order-info-item">
+            <text class="order-info-value">{{orderData.distance}}</text>
+            <text class="order-info-label">距离 km</text>
+          </view>
+        </view>
+
+        <!-- 选中的服务类型 -->
+        <view class="selected-service">
+          <view class="selected-service-icon">
+            <text>🚗</text>
+          </view>
+          <view class="selected-service-info">
+            <text class="selected-service-name">{{orderData.serviceName}}</text>
+            <text class="selected-service-desc">快速专业出行</text>
+          </view>
+          <view class="change-service-btn" bindtap="backToAddress">
+            <text class="change-service-text">更换</text>
+          </view>
+        </view>
+
+        <!-- 乘客数选择 -->
+        <view class="passengers-selector">
+          <view class="passengers-info">
+            <text class="passengers-title">乘客数</text>
+            <text class="passengers-subtitle">需要乘车的乘客数量</text>
+          </view>
+          <view class="passengers-controls">
+            <view class="passenger-btn" bindtap="decreasePassengers">
+              <text>−</text>
+            </view>
+            <text class="passenger-count">{{passengers}}</text>
+            <view class="passenger-btn" bindtap="increasePassengers">
+              <text>+</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 立即下单按钮 -->
+        <view class="place-order-btn" bindtap="placeOrder">
+          <text class="place-order-text">立即下单</text>
+        </view>
+
+        <!-- 其他选项 -->
+        <view class="order-actions">
+          <view class="order-action-btn" bindtap="shareTrip">
+            <text class="action-icon">🔗</text>
+            <text class="action-text">分享行程</text>
+          </view>
+          <view class="order-action-btn" bindtap="addStopover">
+            <text class="action-icon">➕</text>
+            <text class="action-text">添加停靠点</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+

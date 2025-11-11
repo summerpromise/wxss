@@ -1,0 +1,83 @@
+<!--pages/profile/profile.wxml-->
+<view class="profile-container {{isDark ? 'dark' : ''}}">
+  <view wx:if="{{mounted}}" class="profile-content">
+    <view class="profile-header">
+      <text class="page-title">个人设置</text>
+    </view>
+
+    <!-- 主题切换卡片 -->
+    <view class="theme-card">
+      <view class="theme-info">
+        <view class="theme-header">
+          <text class="theme-title">深色模式</text>
+          <text class="theme-status">{{isDark ? '已启用' : '已禁用'}}</text>
+        </view>
+      </view>
+      
+      <view class="theme-toggle" bindtap="toggleTheme">
+        <view class="toggle-track {{isDark ? 'active' : ''}}">
+          <view class="toggle-thumb {{isDark ? 'active' : ''}}"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 主题预览卡片 -->
+    <view class="preview-card">
+      <text class="preview-title">主题预览</text>
+      
+      <view class="preview-content">
+        <view class="preview-item">
+          <text class="preview-icon">{{isDark ? '🌙' : '☀️'}}</text>
+          <text class="preview-text">
+            当前主题：{{isDark ? '夜间模式（科技感）' : '白天模式（简约淡色）'}}
+          </text>
+        </view>
+        
+        <view class="preview-tip">
+          <text class="tip-text">切换主题后会自动保存到本地存储</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 用户信息卡片（可扩展） -->
+    <view class="user-card">
+      <view class="user-header">
+        <view class="user-avatar">
+          <text class="avatar-text">👤</text>
+        </view>
+        <view class="user-info">
+          <text class="user-name">微信用户</text>
+          <text class="user-desc">欢迎使用打车小程序</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 功能列表 -->
+    <view class="function-list">
+      <view class="function-item">
+        <view class="function-icon">🎫</view>
+        <text class="function-text">优惠券</text>
+        <text class="function-arrow">›</text>
+      </view>
+      
+      <view class="function-item">
+        <view class="function-icon">📋</view>
+        <text class="function-text">我的订单</text>
+        <text class="function-arrow">›</text>
+      </view>
+      
+      <view class="function-item">
+        <view class="function-icon">⚙️</view>
+        <text class="function-text">设置</text>
+        <text class="function-arrow">›</text>
+      </view>
+      
+      <view class="function-item">
+        <view class="function-icon">ℹ️</view>
+        <text class="function-text">关于</text>
+        <text class="function-arrow">›</text>
+      </view>
+    </view>
+  </view>
+</view>
+
