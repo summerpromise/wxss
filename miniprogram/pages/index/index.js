@@ -572,7 +572,7 @@ Page({
     }
   },
 
-  // 计算路线 - 使用真实的距离计算API
+  // 计算路线 - 使用真实的距离计算API（带降级方案）
   calculateRoute() {
     const { latitude, longitude, endLatitude, endLongitude, selectedService } = this.data;
     const that = this;
@@ -607,9 +607,10 @@ Page({
       },
       success: function(res) {
         wx.hideLoading();
-        console.log('距离计算成功:', res);
+        console.log('距离计算API响应:', res);
         
         if (res.status === 0 && res.result && res.result.elements && res.result.elements.length > 0) {
+          // API调用成功
           const element = res.result.elements[0];
           const distanceInMeters = element.distance; // 米
           const durationInSeconds = element.duration; // 秒
@@ -620,7 +621,7 @@ Page({
           // 转换为分钟
           const timeInMinutes = Math.ceil(durationInSeconds / 60);
           
-          console.log('距离:', distanceInKm, 'km, 时间:', timeInMinutes, '分钟');
+          console.log('✅ API计算成功 - 距离:', distanceInKm, 'km, 时间:', timeInMinutes, '分钟');
           
           // 根据距离和车型计算价格
           const price = that.calculatePrice(parseFloat(distanceInKm), selectedService);
@@ -637,23 +638,70 @@ Page({
             duration: 1500
           });
         } else {
-          wx.showToast({
-            title: '计算失败，请重试',
-            icon: 'none',
-            duration: 2000
-          });
+          // API返回错误，使用降级方案
+          console.warn('⚠️ API返回错误 (status:', res.status, ')，使用直线距离计算');
+          that.calculateRouteFallback(latitude, longitude, endLatitude, endLongitude, selectedService);
         }
       },
       fail: function(error) {
         wx.hideLoading();
-        console.error('距离计算失败:', error);
-        wx.showToast({
-          title: '计算失败',
-          icon: 'none',
-          duration: 2000
-        });
+        console.error('❌ 距离计算API调用失败:', error);
+        
+        // API调用失败，使用降级方案
+        console.warn('⚠️ 使用直线距离计算作为降级方案');
+        that.calculateRouteFallback(latitude, longitude, endLatitude, endLongitude, selectedService);
       }
     });
+  },
+  
+  // 降级方案：使用直线距离计算（Haversine公式）
+  calculateRouteFallback(startLat, startLng, endLat, endLng, serviceType) {
+    wx.hideLoading();
+    
+    console.log('使用直线距离计算...');
+    
+    // 使用Haversine公式计算两点间的直线距离
+    const R = 6371; // 地球半径（公里）
+    const dLat = this.toRadians(endLat - startLat);
+    const dLng = this.toRadians(endLng - startLng);
+    
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(this.toRadians(startLat)) * Math.cos(this.toRadians(endLat)) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const straightDistance = R * c; // 直线距离（公里）
+    
+    // 驾车距离通常是直线距离的1.3-1.5倍（城市道路）
+    const drivingDistance = (straightDistance * 1.35).toFixed(1);
+    
+    // 估算时间：假设平均速度30km/h（城市道路）
+    const estimatedTime = Math.ceil((parseFloat(drivingDistance) / 30) * 60);
+    
+    console.log('✅ 直线距离:', straightDistance.toFixed(1), 'km');
+    console.log('✅ 估算驾车距离:', drivingDistance, 'km');
+    console.log('✅ 估算时间:', estimatedTime, '分钟');
+    
+    // 根据距离和车型计算价格
+    const price = this.calculatePrice(parseFloat(drivingDistance), serviceType);
+    
+    this.setData({
+      distance: parseFloat(drivingDistance),
+      price: price,
+      time: estimatedTime
+    });
+    
+    wx.showModal({
+      title: '提示',
+      content: 'API配额已用完，已使用直线距离估算（实际距离可能略有差异）',
+      showCancel: false,
+      confirmText: '我知道了'
+    });
+  },
+  
+  // 角度转弧度
+  toRadians(degrees) {
+    return degrees * Math.PI / 180;
   },
   
   // 根据距离和车型计算价格
